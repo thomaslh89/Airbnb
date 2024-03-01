@@ -12,7 +12,7 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 
-const SignUp = () => {
+export default function SignUp({ setToken }) {
   const styles = useStyles();
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
@@ -42,7 +42,13 @@ const SignUp = () => {
           description: description,
         }
       );
+      console.log(response.data);
       if (response.data.token) {
+        async () => {
+          const userToken = response.data.token;
+          setToken(userToken);
+          // console.log("signupusertoken>>>", userToken);
+        };
         alert("Your account has been created !");
       }
       console.log(response.data);
@@ -119,7 +125,7 @@ const SignUp = () => {
       </View>
     </KeyboardAwareScrollView>
   );
-};
+}
 const useStyles = () => {
   const { height, width } = useWindowDimensions();
 
@@ -181,5 +187,3 @@ const useStyles = () => {
   });
   return styles;
 };
-
-export default SignUp;

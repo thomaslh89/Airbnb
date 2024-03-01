@@ -13,13 +13,15 @@ import { useEffect, useState } from "react";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
-const SignUp = () => {
+
+export default function SignIn({ setToken }) {
   const styles = useStyles();
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMessage, setErrorMessage] = useState("");
 
   const handleSubmit = async () => {
     if (!email.trim()) {
@@ -37,10 +39,13 @@ const SignUp = () => {
           password: password,
         }
       );
-      console.log(response.data);
+      console.log(response.data.token);
       if (response.data.token) {
-        alert("You are connected !");
+        const userToken = response.data.token;
+        await setToken(userToken);
+        console.log(">>>>>>usertoken", userToken);
       }
+      alert("You are connected !");
     } catch (error) {
       console.log(error.message);
       if (error.response.status === 400) {
@@ -86,8 +91,8 @@ const SignUp = () => {
             onPress={toggleShowPassword}
           />
 
-          <Text style={styles.accountError}>{errorMessage}</Text>
-          <Text style={styles.passwordError}>{passwordError}</Text>
+          <Text style={styles.accountError}>s</Text>
+          <Text style={styles.passwordError}>s</Text>
           <TouchableOpacity style={styles.buttonSign} onPress={handleSubmit}>
             <Text style={styles.sign}>Sign In</Text>
           </TouchableOpacity>
@@ -98,7 +103,7 @@ const SignUp = () => {
       </View>
     </KeyboardAwareScrollView>
   );
-};
+}
 const useStyles = () => {
   const { height, width } = useWindowDimensions();
 
@@ -160,5 +165,3 @@ const useStyles = () => {
   });
   return styles;
 };
-
-export default SignUp;

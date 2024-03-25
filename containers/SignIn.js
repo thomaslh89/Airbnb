@@ -9,12 +9,12 @@ import {
   ActivityIndicator,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
-import { useEffect, useState } from "react";
+import { useEffect, useId, useState } from "react";
 import axios from "axios";
 import { KeyboardAwareScrollView } from "react-native-keyboard-aware-scroll-view";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 
-export default function SignIn({ setToken }) {
+export default function SignIn({ setToken, setId }) {
   const styles = useStyles();
   const navigation = useNavigation();
   const [email, setEmail] = useState("");
@@ -25,10 +25,10 @@ export default function SignIn({ setToken }) {
 
   const handleSubmit = async () => {
     if (!email.trim()) {
-      alert("Please enter an Email");
+      setErrorMessage("Please enter an Email");
     }
     if (!password.trim()) {
-      alert("Please enter a Password");
+      setErrorMessage("Please enter a valid password");
     }
 
     try {
@@ -40,16 +40,21 @@ export default function SignIn({ setToken }) {
         }
       );
       console.log(response.data.token);
-      if (response.data.token) {
+      if (response.data.token && response.data.id) {
         const userToken = response.data.token;
-        await setToken(userToken);
+        const userId = response.data.id;
+
+        await setToken(userToken); // Pass both token and userId
+        await setId(userId); // Pass both token and userId
+
         console.log(">>>>>>usertoken", userToken);
+        console.log(">>>>>>userId", userId);
       }
       alert("You are connected !");
     } catch (error) {
       console.log(error.message);
       if (error.response.status === 400) {
-        alert("An error occured !");
+        alert("Please verify your username or your password");
       }
     }
   };
@@ -61,7 +66,7 @@ export default function SignIn({ setToken }) {
     <KeyboardAwareScrollView>
       <View style={styles.page}>
         <View style={styles.form}>
-          <Image style={styles.logo} source={require("../assets/Logo.png")} />
+          <Image style={styles.logo} source={require("../assets/logo.png")} />
           <Text style={styles.title}>Sign In</Text>
           <TextInput
             style={styles.input}
@@ -72,27 +77,27 @@ export default function SignIn({ setToken }) {
               setEmail(text);
             }}
           ></TextInput>
+          <View style={styles.container}>
+            <TextInput
+              style={styles.textinput}
+              secureTextEntry={!showPassword}
+              textContentType="password"
+              value={password}
+              placeholder="password"
+              onChangeText={(text) => {
+                setPassword(text);
+              }}
+            ></TextInput>
+            <MaterialCommunityIcons
+              name={showPassword ? "eye-off" : "eye"}
+              size={24}
+              color="#aaa"
+              style={styles.icon}
+              onPress={toggleShowPassword}
+            />
+          </View>
 
-          <TextInput
-            style={styles.input}
-            secureTextEntry={!showPassword}
-            textContentType="password"
-            value={password}
-            placeholder="password"
-            onChangeText={(text) => {
-              setPassword(text);
-            }}
-          ></TextInput>
-          <MaterialCommunityIcons
-            name={showPassword ? "eye-off" : "eye"}
-            size={24}
-            color="#aaa"
-            style={styles.icon}
-            onPress={toggleShowPassword}
-          />
-
-          <Text style={styles.accountError}>s</Text>
-          <Text style={styles.passwordError}>s</Text>
+          <Text style={styles.accountError}>{errorMessage}</Text>
           <TouchableOpacity style={styles.buttonSign} onPress={handleSubmit}>
             <Text style={styles.sign}>Sign In</Text>
           </TouchableOpacity>
@@ -114,7 +119,20 @@ const useStyles = () => {
       //   height: height,
       //   width: width,
     },
-
+    container: {
+      flexDirection: "row",
+      alignItems: "center",
+      // backgroundColor: "#f3f3f3",
+      borderBottomColor: "red",
+      borderBottomWidth: 0.5,
+      width: "70%",
+      height: 30,
+      marginBottom: 40,
+      justifyContent: "space-between",
+    },
+    textinput: {
+      flex: 1,
+    },
     logo: {
       height: 200,
       width: 200,
@@ -161,6 +179,9 @@ const useStyles = () => {
     },
     passwordError: {
       color: "red",
+    },
+    heroImage: {
+      flexDirection: "row",
     },
   });
   return styles;

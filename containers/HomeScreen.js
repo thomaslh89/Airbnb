@@ -1,14 +1,21 @@
-import { useNavigation } from "@react-navigation/core";
-import { Button, FlatList, Text, View, Image, StyleSheet } from "react-native";
+import {
+  Button,
+  FlatList,
+  Text,
+  View,
+  Image,
+  StyleSheet,
+  TouchableOpacity,
+  ActivityIndicator,
+} from "react-native";
 import axios from "axios";
 
 import { Entypo } from "@expo/vector-icons";
 import { useEffect, useState } from "react";
 
-export default function HomeScreen() {
+export default function HomeScreen({ navigation }) {
   const [data, setData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
-  const navigation = useNavigation();
 
   useEffect(() => {
     const fetchData = async () => {
@@ -16,7 +23,7 @@ export default function HomeScreen() {
       try {
         const url = `https://lereacteur-bootcamp-api.herokuapp.com/api/airbnb/rooms`;
         const response = await axios.get(url);
-        console.log(response.data);
+        // console.log(response.data);
         setData(response.data);
       } catch (error) {
         console.error("Erreur lors de la récupération des données", error);
@@ -53,14 +60,23 @@ export default function HomeScreen() {
   return (
     <View>
       {isLoading ? (
-        <Text>Chargement en cours...</Text>
+        <ActivityIndicator />
       ) : (
         <FlatList
           data={data}
           keyExtractor={(item) => String(item._id)}
           renderItem={({ item }) => (
             <View style={styles.wrapper}>
-              <Image style={styles.img} source={{ uri: item.photos[0].url }} />
+              <TouchableOpacity
+                onPress={() => {
+                  navigation.navigate("RoomScreen", { id: item._id });
+                }}
+              >
+                <Image
+                  style={styles.img}
+                  source={{ uri: item.photos[0].url }}
+                />
+              </TouchableOpacity>
               <View style={styles.descriptioncontainer}>
                 <View style={styles.titleContainer}>
                   <Text numberOfLines={1} style={styles.title}>
@@ -81,13 +97,13 @@ export default function HomeScreen() {
           )}
         />
       )}
-      <Text>Bienvenue à la maison !</Text>
+      {/* 
       <Button
         title="Aller au profil"
         onPress={() => {
           navigation.navigate("Profil", { userId: 123 });
         }}
-      />
+      /> */}
     </View>
   );
 }
@@ -105,7 +121,7 @@ const styles = StyleSheet.create({
     position: "relative",
   },
   title: { fontSize: 20, fontWeight: "bold" },
-  imguser: { height: 109, width: 109, borderRadius: 60 },
+  imguser: { height: 100, width: 100, borderRadius: 60 },
   ratingContainer: {
     flexDirection: "row",
     alignItems: "center",
@@ -115,11 +131,12 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     alignItems: "center",
     padding: 10,
+    gap: 10,
 
     marginBottom: 10,
   },
   review: { color: "lightgrey", marginLeft: 5 },
-  titleContainer: { flex: 1 },
+  titleContainer: { flex: 1, gap: 15 },
   price: {
     position: "absolute",
     marginLeft: 15,

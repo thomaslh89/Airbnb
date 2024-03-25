@@ -64,7 +64,7 @@ export default function SignUp({ setToken }) {
     <KeyboardAwareScrollView>
       <View style={styles.page}>
         <View style={styles.form}>
-          <Image style={styles.logo} source={require("../assets/Logo.png")} />
+          <Image style={styles.logo} source={require("../assets/logo.png")} />
           <Text style={styles.title}>Sign Up</Text>
           <TextInput
             style={styles.input}
